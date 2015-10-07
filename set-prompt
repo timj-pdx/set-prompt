@@ -1,0 +1,90 @@
+#! /usr/bin/python3
+
+import sys
+
+# Dictionary to map key to escape sequenced. Note that some value are just
+# escape sequences, others are a tuple (list) containing an escape sequence
+# and a comment
+escDict = {
+    '__bold'       : ['\[\e[1m\]', 'Set Bold'],
+    '__uline'      : ['\[\e[4m\]', 'Set Underline'],
+    '__rev'        : ['\[\e[7m\]', 'Reverse current FG and BG colors'],
+    '__reset'      : ['\[\e[m\]',  'Reset to default color values'],
+    '__title_start': ['\[\033]0;', 'Title String start'],
+    '__title_stop' : ['\007\]',    'Title String stop'],
+    '__fg_black'   : '\[\e[30m\]', '__fg_red'    : '\[\e[31m\]',
+    '__fg_green'   : '\[\e[32m\]', '__fg_yellow' : '\[\e[33m\]',
+    '__fg_blue'    : '\[\e[34m\]', '__fg_purple' : '\[\e[35m\]',
+    '__fg_cyan'    : '\[\e[36m\]', '__fg_white'  : '\[\e[37m\]',
+    '__bg_black'   : '\[\e[40m\]', '__bg_red'    : '\[\e[41m\]',
+    '__bg_green'   : '\[\e[42m\]', '__bg_yellow' : '\[\e[43m\]',
+    '__bg_blue'    : '\[\e[44m\]', '__bg_purple' : '\[\e[45m\]',
+    '__bg_cyan'    : '\[\e[46m\]', '__bg_white'  : '\[\e[47m\]'
+    }
+
+# If no arguments are supplied just output a 'man page'
+if ( len(sys.argv) == 1 or sys.argv[1] == '-h' ):
+    print(
+    '\nNAME:\n'
+    '    set-prompt\n'
+    '\nSYNOPSYS:\n'
+    '    set-prompt [str]\n'
+    '\nDESCRIPTION:\n'
+    '    \'set-prompt\' will print an escape sequence to stdout that can be\n'
+    '    used to set a Bash prompt in an ansi terminal. \'Str\' can be a key,\n'
+    '    an escape sequence or a string. If \'str\' matches a known key it\n'
+    '    will be replaced with the corresponding escape sequence. If it is\n'
+    '    an escape sequence or a string, it will be added to the prompt.\n'
+    '    Note that all keys contain a \'__\' prefix. If no arguments are\n'
+    '    supplied, output this help message.\n'
+    '\nEXAMPLES:\n'
+    '    % PS1=$(set-prompt __bg_green \'==>\' __reset \' \')\n'
+    '        Set the prompt to \'==> \' (bold green)\n'
+    '    % PS1=$(set-prompt __title_start \'\\w\' __title_stop \'==> \')\n'
+    '        Set title to working dir and prompt to \'==> \' (default color)\n'
+    )
+    print('####################  List of Known \'Keys\'      ###################')
+    # Disply the background colors in three columns
+    print('####################  Background Colors         ###################')
+    cnt = 1
+    for key in escDict.keys():
+        if ( key.startswith('__bg')):
+            if ( cnt % 3 == 0 ):
+                print('    %-20s' % (key))
+                cnt = 1
+            else:
+                print('    %-20s' % (key), end='')
+                cnt += 1
+    # Disply the foreground colors in three columns
+    print('\n####################  Foreground Colors         ###################')
+    cnt = 1
+    for key in escDict.keys():   
+        if ( key.startswith('__fg') ):
+            if ( cnt % 3 == 0 ):
+                print('    %-20s' % (key))
+                cnt = 1
+            else:
+                print('    %-20s' % (key), end='')
+                cnt += 1
+    print('\n####################  Other Keys                ####################')
+    for key in escDict.keys():
+        if ( not key.startswith('__fg') and not key.startswith('__bg')):
+            print('    %-16s%s' % (key, escDict.get(key)[1]))
+    print('####################  Special Escape Sequences  ####################')
+    print( "    '\\u'   username" )
+    print( "    '\\h'   FQDN (Fully Qualified Domain Name)" )
+    print( "    '\\H'   hostname" )
+    print( "    '\\w'   working dir (with ~)" )
+    print( "    '\\W'   working dir (with $HOME removed)" )
+    sys.exit()
+
+# Just doit
+for i in range(1,len(sys.argv)):
+    if ( sys.argv[i].startswith('__') ):
+        key = sys.argv[i]
+        if ( not key.startswith('__fg') and not key.startswith('__bg') ):
+            print(escDict[key][0], end="")
+        else:
+            print(escDict[key], end="")
+    else:
+        print(sys.argv[i], end="")
