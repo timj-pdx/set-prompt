@@ -1,0 +1,142 @@
+'\"
+.\" Man page for set-prompt
+.\"
+.\" You may distribute under the terms of the GNU General Public
+.\" License as specified in the file COPYING that comes with the
+.\" set-prompt distribution.
+.\"
+.pc
+.TH SET-PROMPT 1 "2015-10-07" "1.0" "Set Prompt Manual"
+.SH NAME
+set-prompt \- a script for personalized bash prompts
+.SH SYNOPSIS
+.\" The normal options
+.br
+.B set-prompt
+.RI arg
+\&.\|.\|.
+.\" --help and --version
+.br
+.B set-prompt
+.RB \-h|--help
+.SH DESCRIPTION
+.B set-prompt
+is a Python script that simplifies setting the Bash prompt. In
+addition to generating the escape sequences supported by Bash,
+.B set-prompt
+can generate the escape sequences required for setting the title of the
+terminal emulator window.
+
+.SH OVERVIEW
+.B arg
+can be a key or a string. If
+.B arg
+matches a known
+.B key
+it will be replaced with the corresponding escape sequence. If it is a string,
+.B set-prompt
+will concatenate it to the prompt. Note all keys contain a
+.I __ (double under-bar)
+prefix.
+
+.SH OPTIONS
+The following
+.B keys
+are supported and will be replaced with the corresponding escape sequence.
+
+.SS Background Colors
+.TP
+.BR __bg_black ", " __bg_blue ", " __bg_cyan ", " __bg_green ", " \
+__bg_purple ", " __bg_red ", " __bg_yellow ", " __bg_white
+Change the background color. The background color will remain unchanged until
+another background color is specified or until
+.B __reset
+is encountered.
+
+.SS Foreground Colors
+.TP
+.BR __fg_black ", " __fg_blue ", " __fg_cyan ", " __fg_green ", " \
+__fg_purple ", " __fg_red ", " __fg_yellow ", " __fg_white
+Change the foreground color. The foreground color will remain unchanged until
+another foreground color is specified or until the
+.B __reset
+key is encountered.
+
+.SS Other Keys
+.TP
+.BR __reset\ \ 
+Reset the character attributes to their defaults
+.TP
+.BR __rev\ \ \ \ 
+Set character attribute to reverse video
+.TP
+.BR __uline
+Set character attribute to underline
+.TP
+.BR __bold\ \ \ 
+Set character attribute to bold
+.TP
+.BR __title_start
+Start terminal title string. The next argument(s) passed to
+.B set-prompt
+will be interpreted by Bash and displayed in the terminal title. Bash is
+directed to not count these characters in the calculation of the prompt length.
+.TP
+.BR __title_stop
+Stop specifying the terminal title.
+
+.SS Escape Sequences Known to Bash
+.TP
+\'\\d\'   the date in "Weekday Month Date" format (e.g., "Tue May 26")
+.TP
+\'\\h\'   FQDN (Fully Qualified Domain Name)
+.TP
+\'\\H\'   host name
+.TP
+\'\\t\'   the current time in 24-hour HH:MM:SS format
+.TP
+\'\\T\'   the current time in 12-hour HH:MM:SS format
+.TP
+\'\\u\'   user name
+.TP
+\'\\w\'   working dir (with ~)
+.TP
+\'\\W\'   working dir (with $HOME removed)
+.TP
+For the complete list of escape sequences that are support in Bash try a \
+google search of 'bash prompt howto'.
+
+.SH EXAMPLES
+Set the prompt to '==> ' (bold green). Note the '__reset' key that resets
+the character attributes back to their default values.
+.RS
+PS1=$(set-prompt __bg_green '==>' __reset ' ')
+.RE
+.TP
+Set window title to working dir and prompt to '==> ' (default attributes)
+.RS
+PS1=$(set-prompt __title_start '\\w' __title_stop '==> ')
+.RE
+.TP
+A multiple line prompt. The first line is the working dir and the second line \
+is the prompt set to '==> ' (red)
+.RS
+PS1=$(set-prompt '\\w' '\\n'  __fg_red '==>' __reset ' ')
+.RE
+
+.SH SEE\ ALSO
+.BR bash (1),
+.BR xfce-terminal (1),
+.BR xterm (1),
+.BR gnome-terminal (1)
+
+.SH HISTORY
+2015 Written by Tim Johnson.
+
+I have been manually setting my Bash prompt for years using a number of
+different scripts, aliases & bash functions. I grew weary of having to
+relearn the special trick's needed to make it work.
+
+Setting the prompt to something 'eye catching' allows me to easily find the
+the commands embedded in the output when scrolling back through the terminal
+log.
